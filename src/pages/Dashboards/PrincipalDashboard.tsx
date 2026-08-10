@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../lib/AuthContext';
-import { db, auth } from '../../lib/firebase';
-import { collection, query, where, getDocs, addDoc, doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
-import { Users, BookOpen, UserPlus, LogOut, Settings, Award, MessageSquare, X, Plus } from 'lucide-react';
+import { Users, BookOpen, LogOut, Settings, X, Plus } from 'lucide-react';
 import { School, UserProfile, Class } from '../../types';
 import { motion } from 'framer-motion';
 import Logo from '../../components/Logo';
 
 const PrincipalDashboard: React.FC = () => {
-  const { profile, logout } = useAuth();
+  const { profile, token, logout } = useAuth();
   const [school, setSchool] = useState<School | null>(null);
   const [teachers, setTeachers] = useState<UserProfile[]>([]);
   const [classes, setClasses] = useState<Class[]>([]);
@@ -18,24 +16,27 @@ const PrincipalDashboard: React.FC = () => {
   const [isAddTeacherOpen, setIsAddTeacherOpen] = useState(false);
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
   const [isAddClassOpen, setIsAddClassOpen] = useState(false);
+  
+  const [generatedPassword, setGeneratedPassword] = useState('');
 
   // Form states
   const [newEntity, setNewEntity] = useState({ name: '', email: '', className: '', teacherId: '' });
 
   const fetchData = async () => {
-    if (!profile?.schoolId) return;
+    if (!token) return;
     setLoading(true);
     try {
-      const schoolDoc = await getDoc(doc(db, 'schools', profile.schoolId));
-      if (schoolDoc.exists()) setSchool({ id: schoolDoc.id, ...schoolDoc.data() } as School);
+      const headers = { Authorization: `Bearer ${token}` };
+      
+      const schoolRes = await fetch('http://localhost:8000/schools/my', { headers });
+      if (schoolRes.ok) setSchool(await schoolRes.json());
 
-      const teachersQuery = query(collection(db, 'users'), where('schoolId', '==', profile.schoolId), where('role', '==', 'teacher'));
-      const teachersSnap = await getDocs(teachersQuery);
-      setTeachers(teachersSnap.docs.map(d => d.data() as UserProfile));
+      const teachersRes = await fetch('http://localhost:8000/schools/my/teachers', { headers });
+      if (teachersRes.ok) setTeachers(await teachersRes.json());
 
-      const classesQuery = collection(db, 'schools', profile.schoolId, 'classes');
-      const classesSnap = await getDocs(classesQuery);
-      setClasses(classesSnap.docs.map(d => ({ id: d.id, ...d.data() }) as Class));
+      const classesRes = await fetch('http://localhost:8000/schools/my/classes', { headers });
+      if (classesRes.ok) setClasses(await classesRes.json());
+
     } catch (err) {
       console.error(err);
     } finally {
@@ -45,26 +46,29 @@ const PrincipalDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-  }, [profile]);
+  }, [token]);
 
   const handleLogout = () => logout();
 
   const handleCreateTeacher = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!profile?.schoolId) return;
+    if (!token) return;
     try {
-      const mockUid = Math.random().toString(36).substring(2, 12);
-      await setDoc(doc(db, 'users', mockUid), {
-        uid: mockUid,
-        email: newEntity.email,
-        displayName: newEntity.name,
-        role: 'teacher',
-        schoolId: profile.schoolId,
-        createdAt: new Date().toISOString()
+      const res = await fetch('http://localhost:8000/schools/my/teachers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ email: newEntity.email, display_name: newEntity.name, role: 'teacher' })
       });
-      setIsAddTeacherOpen(false);
-      setNewEntity({ name: '', email: '', className: '', teacherId: '' });
-      fetchData();
+      if (res.ok) {
+        const data = await res.json();
+        setGeneratedPassword(data.generated_password);
+        setIsAddTeacherOpen(false);
+        setNewEntity({ name: '', email: '', className: '', teacherId: '' });
+        fetchData();
+      } else {
+        const err = await res.json();
+        alert(err.detail || 'Failed to create teacher');
+      }
     } catch (err) {
       console.error(err);
     }
@@ -72,20 +76,22 @@ const PrincipalDashboard: React.FC = () => {
 
   const handleCreateStudent = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!profile?.schoolId) return;
+    if (!token) return;
     try {
-      const mockUid = Math.random().toString(36).substring(2, 12);
-      await setDoc(doc(db, 'users', mockUid), {
-        uid: mockUid,
-        email: newEntity.email,
-        displayName: newEntity.name,
-        role: 'student',
-        schoolId: profile.schoolId,
-        createdAt: new Date().toISOString()
+      const res = await fetch('http://localhost:8000/schools/my/students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ email: newEntity.email, display_name: newEntity.name, role: 'student' })
       });
-      setIsAddStudentOpen(false);
-      setNewEntity({ name: '', email: '', className: '', teacherId: '' });
-      fetchData();
+      if (res.ok) {
+        const data = await res.json();
+        setGeneratedPassword(data.generated_password);
+        setIsAddStudentOpen(false);
+        setNewEntity({ name: '', email: '', className: '', teacherId: '' });
+      } else {
+        const err = await res.json();
+        alert(err.detail || 'Failed to create student');
+      }
     } catch (err) {
       console.error(err);
     }
@@ -93,18 +99,18 @@ const PrincipalDashboard: React.FC = () => {
 
   const handleCreateClass = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!profile?.schoolId) return;
+    if (!token) return;
     try {
-      await addDoc(collection(db, 'schools', profile.schoolId, 'classes'), {
-        name: newEntity.className,
-        schoolId: profile.schoolId,
-        teacherId: newEntity.teacherId || null,
-        studentIds: [],
-        createdAt: new Date().toISOString()
+      const res = await fetch('http://localhost:8000/schools/my/classes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ name: newEntity.className, teacher_id: newEntity.teacherId ? parseInt(newEntity.teacherId) : null })
       });
-      setIsAddClassOpen(false);
-      setNewEntity({ name: '', email: '', className: '', teacherId: '' });
-      fetchData();
+      if (res.ok) {
+        setIsAddClassOpen(false);
+        setNewEntity({ name: '', email: '', className: '', teacherId: '' });
+        fetchData();
+      }
     } catch (err) {
       console.error(err);
     }
@@ -151,7 +157,18 @@ const PrincipalDashboard: React.FC = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-surface flex flex-col">
+      <main className="flex-1 overflow-y-auto bg-surface flex flex-col relative">
+        {generatedPassword && (
+          <div className="absolute top-4 right-4 z-50 bg-green-500 text-white p-6 rounded-2xl shadow-2xl animate-bounce">
+             <div className="flex justify-between items-center mb-2">
+                <p className="font-bold">Account Created!</p>
+                <button onClick={() => setGeneratedPassword('')}><X size={16}/></button>
+             </div>
+             <p className="text-sm">Please share this temporary password with the user:</p>
+             <p className="text-xl font-mono mt-2 bg-black/20 p-2 rounded tracking-widest text-center">{generatedPassword}</p>
+          </div>
+        )}
+
         <header className="h-[72px] bg-white border-b border-border flex items-center justify-between px-8 shrink-0">
           <div>
             <h2 className="text-xl font-bold text-gray-800 tracking-tight">Principal Command Center</h2>
@@ -206,7 +223,6 @@ const PrincipalDashboard: React.FC = () => {
                     <tr className="border-b border-border">
                       <th className="pb-4 text-[10px] font-black text-gray-300 uppercase tracking-widest">Class Name</th>
                       <th className="pb-4 text-[10px] font-black text-gray-300 uppercase tracking-widest">Teacher</th>
-                      <th className="pb-4 text-[10px] font-black text-gray-300 uppercase tracking-widest">Students</th>
                       <th className="pb-4 text-[10px] font-black text-gray-300 uppercase tracking-widest text-right">Status</th>
                     </tr>
                   </thead>
@@ -215,9 +231,8 @@ const PrincipalDashboard: React.FC = () => {
                       <tr key={cls.id} className="border-b border-gray-50 last:border-0 hover:bg-surface transition-colors cursor-pointer group">
                         <td className="py-5 text-[14px] font-black text-gray-800 group-hover:text-primary transition-colors">{cls.name}</td>
                         <td className="py-5 text-[13px] text-gray-500 font-bold uppercase tracking-tight">
-                          {teachers.find(t => t.uid === cls.teacherId)?.displayName || 'Unassigned'}
+                          {teachers.find((t: any) => t.id === cls.teacherId)?.displayName || 'Unassigned'}
                         </td>
-                        <td className="py-5 text-[14px] text-gray-500 font-bold">{cls.studentIds.length}</td>
                         <td className="py-5 text-right">
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-black uppercase tracking-widest">
                             <span className="size-1.5 rounded-full bg-green-600"></span> Live
@@ -227,7 +242,7 @@ const PrincipalDashboard: React.FC = () => {
                     ))}
                     {classes.length === 0 && (
                       <tr>
-                        <td colSpan={4} className="py-12 text-center text-gray-300 italic uppercase text-[10px] font-black tracking-widest">No classes recorded yet.</td>
+                        <td colSpan={3} className="py-12 text-center text-gray-300 italic uppercase text-[10px] font-black tracking-widest">No classes recorded yet.</td>
                       </tr>
                     )}
                   </tbody>
@@ -302,10 +317,10 @@ const PrincipalDashboard: React.FC = () => {
                          <div className="role-badge bg-gray-100 text-gray-500">Live</div>
                       </div>
                       <p className="text-2xl font-black text-gray-900 mb-2 group-hover:text-primary transition-colors">{cls.name}</p>
-                      <p className="text-sm font-bold text-gray-400 mb-8">Teacher: {teachers.find(t => t.uid === cls.teacherId)?.displayName || 'Not assigned'}</p>
+                      <p className="text-sm font-bold text-gray-400 mb-8">Teacher: {teachers.find((t: any) => t.id === cls.teacherId)?.displayName || 'Not assigned'}</p>
                       <div className="flex justify-between items-center text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-t border-gray-50 pt-6">
-                         <span>{cls.studentIds.length} Students</span>
-                         <span className="text-primary hover:underline">Manage Group</span>
+                         <span>Manage Group</span>
+                         <span className="text-primary hover:underline">Edit</span>
                       </div>
                    </div>
                  ))}
@@ -378,7 +393,7 @@ const PrincipalDashboard: React.FC = () => {
                   <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Assign Teacher</label>
                   <select value={newEntity.teacherId} onChange={e => setNewEntity({...newEntity, teacherId: e.target.value})} className="w-full bg-surface border border-border p-4 rounded-2xl outline-none focus:ring-2 focus:ring-primary transition-all font-bold text-gray-800 appearance-none">
                     <option value="">Select Faculty (Optional)</option>
-                    {teachers.map(t => <option key={t.uid} value={t.uid}>{t.displayName}</option>)}
+                    {teachers.map((t: any) => <option key={t.id} value={t.id}>{t.displayName}</option>)}
                   </select>
                 </div>
                 <button type="submit" className="btn-primary w-full py-5 text-lg shadow-xl shadow-primary/20 mt-4">Create Class Group</button>

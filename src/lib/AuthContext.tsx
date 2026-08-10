@@ -1,96 +1,75 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from './firebase';
-import { UserProfile, UserRole } from '../types';
+import { UserProfile } from '../types';
 
 interface AuthContextType {
-  user: User | null;
+  user: UserProfile | null;
   profile: UserProfile | null;
   loading: boolean;
-  loginDemo: (role: UserRole, email: string) => void;
-  logout: () => Promise<void>;
+  token: string | null;
+  setTokenAndFetchProfile: (token: string) => Promise<void>;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({ 
   user: null, 
   profile: null, 
   loading: true,
-  loginDemo: () => {},
-  logout: async () => {} 
+  token: null,
+  setTokenAndFetchProfile: async () => {},
+  logout: () => {} 
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [token, setToken] = useState<string | null>(localStorage.getItem('eduxcel_token'));
   const [loading, setLoading] = useState(true);
 
-  // Persistence for Demo Mode
-  useEffect(() => {
-    const demoUser = localStorage.getItem('eduxcel_demo_user');
-    const demoProfile = localStorage.getItem('eduxcel_demo_profile');
-    
-    if (demoUser && demoProfile) {
-      setUser(JSON.parse(demoUser));
-      setProfile(JSON.parse(demoProfile));
-      setLoading(false);
-      return;
-    }
-
-    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-      if (fbUser) {
-        setUser(fbUser);
-        const profileDoc = await getDoc(doc(db, 'users', fbUser.uid));
-        if (profileDoc.exists()) {
-          setProfile(profileDoc.data() as UserProfile);
-        }
+  const fetchProfile = async (currentToken: string) => {
+    try {
+      const res = await fetch('http://localhost:8000/users/me', {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProfile(data);
       } else {
-        setUser(null);
-        setProfile(null);
+        logout();
       }
+    } catch (err) {
+      console.error(err);
+      logout();
+    } finally {
       setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const loginDemo = (role: UserRole, email: string) => {
-    const mockUser = {
-      uid: `demo_${role}_${Date.now()}`,
-      email: email,
-      displayName: `Demo ${role.toUpperCase()}`,
-      emailVerified: true
-    } as any;
-
-    const mockProfile: UserProfile = {
-      uid: mockUser.uid,
-      email: email,
-      displayName: `Demo ${role.toUpperCase()}`,
-      role: role,
-      schoolId: 'demo_school_123',
-      createdAt: new Date().toISOString()
-    };
-
-    localStorage.setItem('eduxcel_demo_user', JSON.stringify(mockUser));
-    localStorage.setItem('eduxcel_demo_profile', JSON.stringify(mockProfile));
-    
-    setUser(mockUser);
-    setProfile(mockProfile);
+    }
   };
 
-  const logout = async () => {
-    localStorage.removeItem('eduxcel_demo_user');
-    localStorage.removeItem('eduxcel_demo_profile');
-    await auth.signOut();
-    setUser(null);
+  useEffect(() => {
+    if (token) {
+      fetchProfile(token);
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  const setTokenAndFetchProfile = async (newToken: string) => {
+    localStorage.setItem('eduxcel_token', newToken);
+    setToken(newToken);
+    setLoading(true);
+    await fetchProfile(newToken);
+  };
+
+  const logout = () => {
+    localStorage.removeItem('eduxcel_token');
+    setToken(null);
     setProfile(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, loginDemo, logout }}>
+    <AuthContext.Provider value={{ user: profile, profile, loading, token, setTokenAndFetchProfile, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => useContext(AuthContext);
+

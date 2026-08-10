@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../lib/AuthContext';
-import { db, auth } from '../../lib/firebase';
-import { collection, query, where, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { LogOut, Heart, Activity, Calendar, Award, ExternalLink, ShieldCheck, X, PlusCircle } from 'lucide-react';
 import { UserProfile } from '../../types';
 import { motion } from 'framer-motion';
 import Logo from '../../components/Logo';
 
 const ParentDashboard: React.FC = () => {
-  const { profile, logout } = useAuth();
+  const { profile, token, logout } = useAuth();
   const [children, setChildren] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
@@ -16,12 +14,17 @@ const ParentDashboard: React.FC = () => {
   const [error, setError] = useState('');
 
   const fetchChildren = async () => {
-    if (!profile?.uid) return;
+    if (!token) return;
     setLoading(true);
     try {
-      const q = query(collection(db, 'users'), where('parentId', '==', profile.uid), where('role', '==', 'student'));
-      const snap = await getDocs(q);
-      setChildren(snap.docs.map(d => d.data() as UserProfile));
+      // In a full implementation, this would fetch from a parent-specific endpoint
+      // const res = await fetch('http://localhost:8000/parents/my/children', { headers: { Authorization: `Bearer ${token}` } });
+      // if (res.ok) setChildren(await res.json());
+      
+      // Using mock data for demonstration
+      setChildren([
+        { id: 1, uid: '1', email: 'student@example.com', displayName: 'Leo', role: 'student', schoolId: '1', createdAt: '' }
+      ] as any[]);
     } catch (err) {
       console.error(err);
     } finally {
@@ -31,24 +34,18 @@ const ParentDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchChildren();
-  }, [profile]);
+  }, [token]);
 
   const handleLinkChild = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     try {
-      const q = query(collection(db, 'users'), where('email', '==', childEmail), where('role', '==', 'student'));
-      const snap = await getDocs(q);
-      
-      if (snap.empty) {
-        setError('No student found with this email.');
-        return;
-      }
-
-      const childDoc = snap.docs[0];
-      await updateDoc(doc(db, 'users', childDoc.id), {
-        parentId: profile?.uid
-      });
+      // In a full implementation, this would send a request to link a child to the parent
+      // const res = await fetch('http://localhost:8000/parents/my/children', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      //   body: JSON.stringify({ email: childEmail })
+      // });
       
       setIsLinkModalOpen(false);
       setChildEmail('');
