@@ -103,9 +103,10 @@ const Login: React.FC = () => {
             </button>
           </form>
 
-          <div className="mt-8 text-center text-sm text-gray-600">
-            <p>New Principal? <Link to="/register" className="text-primary font-bold hover:underline">Register your school</Link></p>
-            <p className="mt-2 text-[10px] opacity-40 italic uppercase tracking-widest">Educational Intelligence Systems &bull; 2024</p>
+          <div className="mt-8 text-center text-sm text-gray-600 space-y-1">
+            <p>New here? <Link to="/register" className="text-primary font-bold hover:underline">Create an account</Link></p>
+            <p className="text-xs text-gray-400">Teachers & students: use your school's invite code to register.</p>
+            <p className="mt-3 text-[10px] opacity-40 italic uppercase tracking-widest">Educational Intelligence Systems &bull; 2024</p>
           </div>
         </div>
       </div>

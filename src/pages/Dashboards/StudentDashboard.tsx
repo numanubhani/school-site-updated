@@ -1,197 +1,327 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../lib/AuthContext';
-import { LogOut, Star, BookOpen, Trophy, PlayCircle, Users, ArrowRight, Video, FileText } from 'lucide-react';
-import Logo from '../../components/Logo';
+import { BookOpen, LayoutDashboard, TrendingUp, ChevronRight, Video, FileText, File, Download, PlayCircle, X } from 'lucide-react';
+import DashboardLayout from '../../components/DashboardLayout';
+
+const API = 'http://localhost:8000';
+
+interface ClassData { id: number; name: string; teacher_id: number | null; student_count: number; }
+interface SubjectData { id: number; name: string; description: string; class_id: number; }
+interface MaterialData { id: number; title: string; description: string; material_type: string; url: string | null; filename: string | null; }
+
+const VIDEO_EXTS = ['.mp4', '.mov', '.avi', '.webm', '.mkv', '.wmv', '.m4v', '.3gp', '.ts'];
+
+const toEmbedUrl = (url: string): string => {
+  const ytWatch = url.match(/youtube\.com\/watch\?v=([^&]+)/);
+  if (ytWatch) return `https://www.youtube.com/embed/${ytWatch[1]}`;
+  const ytShort = url.match(/youtu\.be\/([^?]+)/);
+  if (ytShort) return `https://www.youtube.com/embed/${ytShort[1]}`;
+  return url;
+};
+
+const isVideoMaterial = (m: MaterialData): boolean => {
+  if (m.material_type === 'video') return true;
+  const name = (m.filename || m.url || '').toLowerCase();
+  return VIDEO_EXTS.some(ext => name.endsWith(ext));
+};
+
+const materialIcon = (m: MaterialData) => {
+  if (m.material_type === 'video_url') return <Video size={18} className="text-blue-500" />;
+  if (isVideoMaterial(m)) return <Video size={18} className="text-blue-500" />;
+  if (m.material_type === 'pdf') return <FileText size={18} className="text-red-500" />;
+  return <File size={18} className="text-gray-400" />;
+};
 
 const StudentDashboard: React.FC = () => {
   const { profile, token, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'learning' | 'videos' | 'progress'>('learning');
-  const [loading, setLoading] = useState(false);
-  const [assignments, setAssignments] = useState<any[]>([]);
-  const [videos, setVideos] = useState<any[]>([
-    { id: 1, title: 'Introduction to Physics', duration: '12:45', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
-    { id: 2, title: 'Algebra Foundations', duration: '45:00', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' }
-  ]);
-  const [activeVideo, setActiveVideo] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<'classes' | 'progress'>('classes');
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // In a full implementation, fetch assignments and videos from backend
-    // fetch('http://localhost:8000/students/my/assignments', { headers: { Authorization: `Bearer ${token}` } })
-    //   .then(res => res.json())
-    //   .then(data => setAssignments(data));
-    setAssignments([
-      { id: 1, title: 'Read Chapter 4: Thermodynamics', dueDate: 'Tomorrow' },
-      { id: 2, title: 'Complete Algebra Worksheet 2', dueDate: 'Friday' }
-    ]);
-  }, [token]);
+  const [classes, setClasses] = useState<ClassData[]>([]);
+  const [selectedClass, setSelectedClass] = useState<ClassData | null>(null);
+  const [subjects, setSubjects] = useState<SubjectData[]>([]);
+  const [selectedSubject, setSelectedSubject] = useState<SubjectData | null>(null);
+  const [materials, setMaterials] = useState<MaterialData[]>([]);
+  const [activeMaterial, setActiveMaterial] = useState<MaterialData | null>(null);
 
-  const handleLogout = () => logout();
+  const headers = { Authorization: `Bearer ${token}` };
 
-  if (loading) return <div className="p-8 text-center animate-pulse text-primary font-bold">Waking up curriculum groups...</div>;
+  const fetchClasses = async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`${API}/students/my/classes`, { headers });
+      if (res.ok) setClasses(await res.json());
+    } finally { setLoading(false); }
+  };
+
+  const fetchSubjects = async (classId: number) => {
+    const res = await fetch(`${API}/classes/${classId}/subjects`, { headers });
+    if (res.ok) setSubjects(await res.json());
+  };
+
+  const fetchMaterials = async (subjectId: number) => {
+    const res = await fetch(`${API}/subjects/${subjectId}/materials`, { headers });
+    if (res.ok) setMaterials(await res.json());
+  };
+
+  useEffect(() => { fetchClasses(); }, [token]);
+
+  const handleSelectClass = async (cls: ClassData) => {
+    setSelectedClass(cls);
+    setSelectedSubject(null);
+    setMaterials([]);
+    setActiveMaterial(null);
+    await fetchSubjects(cls.id);
+  };
+
+  const handleSelectSubject = async (sub: SubjectData) => {
+    setSelectedSubject(sub);
+    setActiveMaterial(null);
+    await fetchMaterials(sub.id);
+  };
+
+  const navItems = [
+    { tab: 'classes', label: 'My Classes', icon: LayoutDashboard },
+    { tab: 'progress', label: 'Progress', icon: TrendingUp },
+  ];
+
+  const breadcrumb = selectedSubject
+    ? `${selectedClass?.name} › ${selectedSubject.name}`
+    : selectedClass
+    ? selectedClass.name
+    : 'My Classes';
+
+  const renderViewer = (m: MaterialData) => {
+    const src = m.url ? (m.url.startsWith('/') ? `${API}${m.url}` : m.url) : '';
+
+    if (m.material_type === 'video_url') {
+      return (
+        <iframe
+          key={m.id}
+          className="w-full h-full"
+          src={toEmbedUrl(src)}
+          title={m.title}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      );
+    }
+    if (isVideoMaterial(m)) {
+      return (
+        <video
+          key={m.id}
+          controls
+          autoPlay
+          className="w-full h-full object-contain bg-black"
+          src={src}
+        >
+          Your browser does not support video playback.
+        </video>
+      );
+    }
+    if (m.material_type === 'pdf') {
+      return (
+        <iframe
+          key={m.id}
+          className="w-full h-full bg-white"
+          src={src}
+          title={m.title}
+        />
+      );
+    }
+    return (
+      <div className="flex flex-col items-center justify-center h-full gap-4 p-8">
+        <div className="size-16 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400"><File size={32} /></div>
+        <p className="font-black text-gray-700">{m.filename || m.title}</p>
+        <a href={src} download={m.filename || m.title} className="btn-primary flex items-center gap-2">
+          <Download size={16} /> Download File
+        </a>
+      </div>
+    );
+  };
+
+  if (loading) return <div className="p-8 text-center animate-pulse text-primary font-bold">Loading your classes...</div>;
 
   return (
-    <div className="min-h-screen bg-surface pb-12">
-      {/* Top Navigation */}
-      <nav className="bg-white border-b border-border px-8 h-[72px] flex justify-between items-center sticky top-0 z-50">
-        <div className="flex items-center gap-8">
-          <Logo size="md" />
-          <div className="hidden md:flex gap-4">
-            <button 
-              onClick={() => setActiveTab('learning')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'learning' ? 'bg-primary text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}
-            >
-              ASSIGNMENTS
-            </button>
-            <button 
-              onClick={() => setActiveTab('videos')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'videos' ? 'bg-primary text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}
-            >
-              VIDEO LESSONS
-            </button>
-            <button 
-              onClick={() => setActiveTab('progress')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'progress' ? 'bg-primary text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}
-            >
-              ANALYTICS
-            </button>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-6">
-          <div className="hidden sm:flex items-center gap-2 bg-primary/5 px-4 py-2 rounded-xl border border-primary/10">
-             <Star className="text-secondary fill-secondary" size={16} />
-             <span className="font-black text-primary text-[10px] uppercase tracking-widest">Mastery Level 4</span>
-          </div>
+    <DashboardLayout
+      panelTitle="Student Panel"
+      navItems={navItems as any}
+      activeTab={activeTab}
+      onTabChange={tab => {
+        setActiveTab(tab as any);
+        if (tab === 'classes') { setSelectedClass(null); setSelectedSubject(null); setActiveMaterial(null); }
+      }}
+      onLogout={logout}
+      topBarRight={
+        <div className="flex items-center gap-3">
           <div className="role-badge bg-secondary">Student</div>
-          <div className="flex items-center gap-3 border-l pl-6 border-border">
-             <div className="size-9 bg-surface rounded-xl flex items-center justify-center text-primary font-bold border border-border">
-               {profile?.displayName?.[0]}
-             </div>
-             <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 p-2">
-                <LogOut size={18} />
-             </button>
+          <div className="size-8 bg-surface rounded-xl flex items-center justify-center text-primary font-bold border border-border text-sm">
+            {profile?.displayName?.[0]}
           </div>
         </div>
-      </nav>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-8 py-10">
-        <header className="mb-12">
-          <h2 className="text-4xl font-black text-gray-900 tracking-tight leading-none">Student Portal</h2>
-          <p className="text-xs text-gray-400 font-bold uppercase tracking-[0.2em] mt-2">Personalized learning path for {profile?.displayName}</p>
+      }
+    >
+      <div className="flex flex-col min-h-full">
+        {/* Top bar */}
+        <header className="h-[72px] bg-white border-b border-border flex items-center justify-between px-8 shrink-0">
+          <div>
+            <h2 className="text-xl font-black text-gray-800 tracking-tight">
+              {activeTab === 'classes' ? breadcrumb : 'Progress'}
+            </h2>
+            <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">
+              {activeTab === 'classes' && selectedSubject ? 'Subject Materials' : activeTab === 'classes' && selectedClass ? 'Subjects' : profile?.displayName}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {selectedSubject && (
+              <button onClick={() => { setSelectedSubject(null); setActiveMaterial(null); }} className="text-xs text-gray-500 hover:text-primary transition-colors">← Subjects</button>
+            )}
+            {selectedClass && !selectedSubject && (
+              <button onClick={() => { setSelectedClass(null); setSubjects([]); }} className="text-xs text-gray-500 hover:text-primary transition-colors">← Classes</button>
+            )}
+            <div className="size-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-sm">{profile?.displayName?.[0]}</div>
+          </div>
         </header>
 
-        {activeTab === 'videos' && (
-          <section className="bento-grid pb-20">
-            <div className="card col-span-3 row-span-2 shadow-2xl p-0 overflow-hidden bg-black flex flex-col">
-              {activeVideo ? (
-                <div className="relative w-full pb-[56.25%] flex-1">
-                  <iframe 
-                    className="absolute top-0 left-0 w-full h-full"
-                    src={activeVideo.url} 
-                    title="Video player" 
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowFullScreen
-                  ></iframe>
-                </div>
-              ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-white/50 p-20">
-                  <Video size={64} className="mb-4 opacity-50" />
-                  <p className="font-bold uppercase tracking-widest text-sm">Select a video lesson to start learning</p>
-                </div>
-              )}
-            </div>
+        <div className="flex-1 overflow-auto p-8">
 
-            <div className="card col-span-1 row-span-2 shadow-xl bg-white flex flex-col">
-              <h3 className="font-black text-gray-900 mb-6 uppercase tracking-widest text-xs border-b border-gray-100 pb-4">Up Next</h3>
-              <div className="space-y-4 overflow-y-auto flex-1">
-                {videos.map(v => (
-                  <div key={v.id} onClick={() => setActiveVideo(v)} className={`flex gap-4 p-4 rounded-2xl cursor-pointer transition-all border-2 ${activeVideo?.id === v.id ? 'border-primary bg-primary/5' : 'border-transparent hover:bg-surface'}`}>
-                    <div className="w-24 h-16 bg-gray-200 rounded-xl relative flex items-center justify-center text-gray-400 overflow-hidden shrink-0">
-                      <PlayCircle size={24} className="relative z-10" />
-                      <div className="absolute inset-0 bg-black/5"></div>
+          {/* Progress tab placeholder */}
+          {activeTab === 'progress' && (
+            <div className="flex flex-col items-center justify-center py-32 text-center">
+              <div className="size-20 rounded-3xl bg-primary/5 flex items-center justify-center text-primary mb-6">
+                <TrendingUp size={36} />
+              </div>
+              <h3 className="text-2xl font-black text-gray-900 mb-2">Analytics Coming Soon</h3>
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Your progress insights will appear here</p>
+            </div>
+          )}
+
+          {/* Class list */}
+          {activeTab === 'classes' && !selectedClass && (
+            <div>
+              <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-6">Enrolled Classes</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {classes.map(cls => (
+                  <button key={cls.id} onClick={() => handleSelectClass(cls)} className="card text-left group hover:-translate-y-1 transition-all cursor-pointer">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="size-11 rounded-2xl bg-primary/5 flex items-center justify-center text-primary">
+                        <BookOpen size={22} />
+                      </div>
+                      <ChevronRight size={18} className="text-gray-300 group-hover:text-primary transition-colors" />
                     </div>
-                    <div>
-                      <p className="font-bold text-sm text-gray-800 leading-tight">{v.title}</p>
-                      <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest">{v.duration}</p>
+                    <p className="text-xl font-black text-gray-900 group-hover:text-primary transition-colors mb-1">{cls.name}</p>
+                    <div className="mt-4 pt-4 border-t border-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                      {cls.student_count} students · Tap to view subjects
                     </div>
-                  </div>
+                  </button>
                 ))}
+                {classes.length === 0 && (
+                  <div className="col-span-3 py-24 text-center border-2 border-dashed border-gray-100 rounded-3xl">
+                    <BookOpen size={32} className="text-gray-200 mx-auto mb-3" />
+                    <p className="text-xs text-gray-300 italic font-black uppercase tracking-widest">You're not enrolled in any classes yet.</p>
+                  </div>
+                )}
               </div>
             </div>
-          </section>
-        )}
+          )}
 
-        {activeTab === 'learning' && (
-          <section className="bento-grid pb-20">
-             {/* Achievement Card */}
-             <div className="card col-span-2 row-span-1 flex items-center gap-8 bg-gradient-to-br from-white to-secondary/5 border-secondary/20">
-                <div className="size-24 bg-accent/20 rounded-[30px] flex items-center justify-center text-accent shadow-lg shadow-accent/10">
-                  <Trophy size={48} />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Accomplishments</p>
-                  <h4 className="text-4xl font-black text-gray-900 tracking-tighter italic">12 Gold Stars</h4>
-                  <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-black uppercase tracking-widest">
-                    Ready to claim
-                  </div>
-                </div>
-             </div>
-
-             {/* Assignments Overview */}
-             <div className="card col-span-2 row-span-2 shadow-2xl">
-                <div className="flex justify-between items-center mb-10 border-b border-gray-50 pb-6">
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] font-black">Active Tasks</span>
-                  <span className="text-primary text-[10px] font-black cursor-pointer hover:underline uppercase tracking-widest">View History</span>
-                </div>
-                <div className="space-y-4">
-                  {assignments.map(asgn => (
-                    <div key={asgn.id} className="flex items-center gap-5 p-6 bg-surface rounded-[30px] hover:translate-x-2 border-2 border-transparent hover:border-primary/20 hover:bg-white transition-all cursor-pointer group">
-                      <div className="size-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
-                        <FileText size={24} />
+          {/* Subject list */}
+          {activeTab === 'classes' && selectedClass && !selectedSubject && (
+            <div>
+              <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-6">Subjects in {selectedClass.name}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {subjects.map(sub => (
+                  <button key={sub.id} onClick={() => handleSelectSubject(sub)} className="card text-left group hover:-translate-y-1 transition-all cursor-pointer">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="size-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
+                        <BookOpen size={18} />
                       </div>
-                      <div className="flex-1">
-                        <p className="font-black text-lg text-gray-900 group-hover:text-primary transition-colors leading-tight">{asgn.title}</p>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Due: {asgn.dueDate}</p>
-                      </div>
-                      <div className="size-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 group-hover:bg-primary group-hover:text-white transition-all">
-                        <ArrowRight size={20} />
-                      </div>
+                      <ChevronRight size={16} className="text-gray-300 group-hover:text-secondary transition-colors" />
                     </div>
-                  ))}
-                  {assignments.length === 0 && (
-                     <div className="py-20 text-center space-y-4">
-                        <div className="size-16 bg-gray-50 rounded-full flex items-center justify-center text-gray-200 mx-auto"><PlayCircle size={32} /></div>
-                        <p className="text-xs text-gray-300 italic font-bold uppercase tracking-widest">Zero tasks remaining. You're up to date!</p>
-                     </div>
-                  )}
-                </div>
-             </div>
+                    <p className="text-lg font-black text-gray-900 group-hover:text-secondary transition-colors">{sub.name}</p>
+                    {sub.description && <p className="text-xs text-gray-400 mt-1 line-clamp-2">{sub.description}</p>}
+                    <p className="mt-4 pt-3 border-t border-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-widest">View materials →</p>
+                  </button>
+                ))}
+                {subjects.length === 0 && (
+                  <div className="col-span-3 py-24 text-center border-2 border-dashed border-gray-100 rounded-3xl">
+                    <p className="text-xs text-gray-300 italic font-black uppercase tracking-widest">No subjects added yet.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
-             <div className="card col-span-1 row-span-1 bg-primary text-white border-none shadow-xl shadow-primary/20">
-                <span className="text-[10px] font-bold text-white/50 uppercase tracking-[0.2em] block mb-4">Focus Record</span>
-                <div className="text-5xl font-black italic tracking-tighter flex items-baseline gap-1">
-                  45 <span className="text-[12px] uppercase opacity-60 not-italic">mins</span>
-                </div>
-                <div className="mt-8 flex items-center gap-1.5 px-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className={`h-1.5 flex-1 rounded-full ${i < 3 ? 'bg-white' : 'bg-white/20'}`}></div>
-                  ))}
-                </div>
-             </div>
+          {/* Materials view */}
+          {activeTab === 'classes' && selectedSubject && (
+            <div className="flex gap-6 h-[calc(100vh-220px)]">
 
-             <div className="card col-span-1 row-span-1 flex flex-col justify-center items-center text-center bg-accent text-accent-foreground border-none">
-                <div className="size-16 bg-white/20 rounded-[20px] flex items-center justify-center mb-4">
-                   <Users size={32} />
-                </div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1">Collaboration</p>
-                <p className="text-2xl font-black italic">Active Study</p>
-             </div>
-          </section>
-        )}
-      </main>
-    </div>
+              {/* Materials list */}
+              <div className="w-80 shrink-0 flex flex-col gap-3 overflow-y-auto pr-1">
+                <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2">Materials</p>
+                {materials.map(m => (
+                  <button
+                    key={m.id}
+                    onClick={() => setActiveMaterial(m)}
+                    className={`w-full text-left p-4 rounded-2xl border-2 transition-all flex items-start gap-3 ${
+                      activeMaterial?.id === m.id
+                        ? 'border-primary bg-primary/5'
+                        : 'border-transparent bg-white hover:border-gray-100 hover:bg-surface'
+                    }`}
+                  >
+                    <div className="size-9 rounded-xl bg-gray-50 flex items-center justify-center shrink-0">
+                      {materialIcon(m)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-black text-sm text-gray-900 leading-tight truncate">{m.title}</p>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">
+                        {m.material_type === 'video_url' ? 'Video Link' : isVideoMaterial(m) ? 'Video' : m.material_type.toUpperCase()}
+                      </p>
+                      {m.description && <p className="text-[11px] text-gray-500 mt-1 line-clamp-2">{m.description}</p>}
+                    </div>
+                    {activeMaterial?.id === m.id && (
+                      <div className="size-2 rounded-full bg-primary mt-1 shrink-0" />
+                    )}
+                  </button>
+                ))}
+                {materials.length === 0 && (
+                  <div className="py-16 text-center border-2 border-dashed border-gray-100 rounded-2xl">
+                    <p className="text-xs text-gray-300 italic font-black uppercase tracking-widest">No materials yet.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Viewer */}
+              <div className="flex-1 rounded-3xl overflow-hidden border border-border bg-gray-900 flex flex-col">
+                {activeMaterial ? (
+                  <>
+                    <div className="flex items-center justify-between px-5 py-3 bg-white border-b border-border shrink-0">
+                      <div className="flex items-center gap-2">
+                        {materialIcon(activeMaterial)}
+                        <span className="font-black text-sm text-gray-900">{activeMaterial.title}</span>
+                      </div>
+                      <button onClick={() => setActiveMaterial(null)} className="p-1 text-gray-400 hover:text-gray-700 transition-colors">
+                        <X size={16} />
+                      </button>
+                    </div>
+                    <div className="flex-1 overflow-hidden">
+                      {renderViewer(activeMaterial)}
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-white/30 gap-4">
+                    <PlayCircle size={56} className="opacity-30" />
+                    <p className="text-sm font-black uppercase tracking-widest opacity-50">Select a material to view</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

@@ -2,7 +2,7 @@
 
 @theme {
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --color-primary: #4B2165; /* SEL Purple */
+  --color-primary: #407aff;
   --color-secondary: #99C300; /* SEL Lime */
   --color-accent: #FEDA00; /* SEL Yellow */
   --color-background: #FFFFFF;
@@ -12,7 +12,7 @@
 }
 
 :root {
-  --primary: #4B2165;
+  --primary: #407aff;
   --secondary: #99C300;
   --accent: #FEDA00;
   --background: #FFFFFF;
@@ -34,7 +34,8 @@
   }
   
   .card {
-    @apply bg-white border border-gray-100 rounded-2xl p-6 shadow-bento;
+    @apply bg-white rounded-2xl p-6;
+    box-shadow: rgba(60,64,67,0.3) 0 1px 2px 0, rgba(60,64,67,0.15) 0 2px 6px 2px;
   }
 
   .role-badge {
@@ -51,10 +52,11 @@
   }
 
   .sidebar-item-active {
-    @apply bg-secondary text-white shadow-lg;
+    background-color: color-mix(in srgb, var(--primary) 70%, white);
+    @apply text-white shadow-lg;
   }
 }
 
 @utility shadow-bento {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: rgba(60,64,67,0.3) 0 1px 2px 0, rgba(60,64,67,0.15) 0 2px 6px 2px;
 }

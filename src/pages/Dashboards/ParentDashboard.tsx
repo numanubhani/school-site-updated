@@ -17,14 +17,10 @@ const ParentDashboard: React.FC = () => {
     if (!token) return;
     setLoading(true);
     try {
-      // In a full implementation, this would fetch from a parent-specific endpoint
-      // const res = await fetch('http://localhost:8000/parents/my/children', { headers: { Authorization: `Bearer ${token}` } });
-      // if (res.ok) setChildren(await res.json());
-      
-      // Using mock data for demonstration
-      setChildren([
-        { id: 1, uid: '1', email: 'student@example.com', displayName: 'Leo', role: 'student', schoolId: '1', createdAt: '' }
-      ] as any[]);
+      const res = await fetch('http://localhost:8000/parents/my/children', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) setChildren(await res.json());
     } catch (err) {
       console.error(err);
     } finally {
@@ -40,16 +36,19 @@ const ParentDashboard: React.FC = () => {
     e.preventDefault();
     setError('');
     try {
-      // In a full implementation, this would send a request to link a child to the parent
-      // const res = await fetch('http://localhost:8000/parents/my/children', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      //   body: JSON.stringify({ email: childEmail })
-      // });
-      
-      setIsLinkModalOpen(false);
-      setChildEmail('');
-      fetchChildren();
+      const res = await fetch('http://localhost:8000/parents/my/children', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ email: childEmail })
+      });
+      if (res.ok) {
+        setIsLinkModalOpen(false);
+        setChildEmail('');
+        fetchChildren();
+      } else {
+        const err = await res.json();
+        setError(err.detail || 'Connection failed. Please try again.');
+      }
     } catch (err) {
       console.error(err);
       setError('Connection failed. Please try again.');
@@ -121,7 +120,7 @@ const ParentDashboard: React.FC = () => {
                    </div>
 
                    <div className="text-center md:text-right space-y-1">
-                      <p className="text-5xl font-black text-primary italic leading-none">85%</p>
+                      <p className="text-5xl font-black text-primary italic leading-none">{(child as any).mastery ?? '—'}</p>
                       <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest opacity-60">Avg. Mastery</p>
                    </div>
                 </div>
