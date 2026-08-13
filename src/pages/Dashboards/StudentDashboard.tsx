@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../lib/AuthContext';
 import { BookOpen, LayoutDashboard, TrendingUp, ChevronRight, Video, FileText, File, Download, PlayCircle, X } from 'lucide-react';
 import DashboardLayout from '../../components/DashboardLayout';
 
-const API = 'http://localhost:8000';
+const API = '/api';
 
 interface ClassData { id: number; name: string; teacher_id: number | null; student_count: number; }
 interface SubjectData { id: number; name: string; description: string; class_id: number; }
@@ -87,7 +87,7 @@ const StudentDashboard: React.FC = () => {
   ];
 
   const breadcrumb = selectedSubject
-    ? `${selectedClass?.name} › ${selectedSubject.name}`
+    ? `${selectedClass?.name} â€º ${selectedSubject.name}`
     : selectedClass
     ? selectedClass.name
     : 'My Classes';
@@ -176,10 +176,10 @@ const StudentDashboard: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
             {selectedSubject && (
-              <button onClick={() => { setSelectedSubject(null); setActiveMaterial(null); }} className="text-xs text-gray-500 hover:text-primary transition-colors">← Subjects</button>
+              <button onClick={() => { setSelectedSubject(null); setActiveMaterial(null); }} className="text-xs text-gray-500 hover:text-primary transition-colors">â† Subjects</button>
             )}
             {selectedClass && !selectedSubject && (
-              <button onClick={() => { setSelectedClass(null); setSubjects([]); }} className="text-xs text-gray-500 hover:text-primary transition-colors">← Classes</button>
+              <button onClick={() => { setSelectedClass(null); setSubjects([]); }} className="text-xs text-gray-500 hover:text-primary transition-colors">â† Classes</button>
             )}
             <div className="size-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-sm">{profile?.displayName?.[0]}</div>
           </div>
@@ -213,7 +213,7 @@ const StudentDashboard: React.FC = () => {
                     </div>
                     <p className="text-xl font-black text-gray-900 group-hover:text-primary transition-colors mb-1">{cls.name}</p>
                     <div className="mt-4 pt-4 border-t border-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                      {cls.student_count} students · Tap to view subjects
+                      {cls.student_count} students Â· Tap to view subjects
                     </div>
                   </button>
                 ))}
@@ -242,7 +242,7 @@ const StudentDashboard: React.FC = () => {
                     </div>
                     <p className="text-lg font-black text-gray-900 group-hover:text-secondary transition-colors">{sub.name}</p>
                     {sub.description && <p className="text-xs text-gray-400 mt-1 line-clamp-2">{sub.description}</p>}
-                    <p className="mt-4 pt-3 border-t border-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-widest">View materials →</p>
+                    <p className="mt-4 pt-3 border-t border-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-widest">View materials â†’</p>
                   </button>
                 ))}
                 {subjects.length === 0 && (
@@ -326,3 +326,4 @@ const StudentDashboard: React.FC = () => {
 };
 
 export default StudentDashboard;
+

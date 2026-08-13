@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { LogOut, Menu, X, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Logo from './Logo';
@@ -150,7 +150,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         {/* Single unified top bar */}
         <div className="bg-white border-b border-gray-200 px-6 flex items-center justify-between shadow-sm shrink-0 h-[64px] gap-4">
           <div className="flex items-center gap-3 min-w-0 flex-1">
-            {/* Hamburger — mobile only */}
+            {/* Hamburger â€” mobile only */}
             {!showSidebar && (
               <motion.button
                 initial={{ opacity: 0, x: -10 }}
@@ -205,3 +205,4 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 };
 
 export default DashboardLayout;
+

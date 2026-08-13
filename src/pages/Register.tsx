@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserPlus, School, User, Lock, Mail, ShieldCheck, MapPin, Phone, KeyRound } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
@@ -37,17 +37,17 @@ const Register: React.FC = () => {
       let payload: any = {};
 
       if (role === 'principal') {
-        endpoint = 'http://localhost:8000/register/principal';
+        endpoint = '/api/register/principal';
         payload = {
           user: { email, display_name: name, password, role },
           school: { name: schoolName, address: schoolAddress, phone: schoolPhone },
         };
       } else if (role === 'parent') {
-        endpoint = 'http://localhost:8000/register/parent';
+        endpoint = '/api/register/parent';
         payload = { email, display_name: name, password, role };
       } else {
-        // teacher or student — requires invite code
-        endpoint = `http://localhost:8000/register/${role}`;
+        // teacher or student â€” requires invite code
+        endpoint = `/api/register/${role}`;
         payload = { email, display_name: name, password, invite_code: inviteCode };
       }
 
@@ -65,7 +65,7 @@ const Register: React.FC = () => {
       const formData = new URLSearchParams();
       formData.append('username', email);
       formData.append('password', password);
-      const loginRes = await fetch('http://localhost:8000/login', {
+      const loginRes = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString(),
@@ -196,7 +196,7 @@ const Register: React.FC = () => {
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 size-5" />
-                  <input type="password" required minLength={6} className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
+                  <input type="password" required minLength={6} className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" value={password} onChange={e => setPassword(e.target.value)} />
                 </div>
               </div>
             </div>
@@ -223,3 +223,4 @@ const Register: React.FC = () => {
 };
 
 export default Register;
+

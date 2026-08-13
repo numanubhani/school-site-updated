@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { motion } from 'framer-motion';
 
 interface LogoProps {
@@ -70,3 +70,4 @@ const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true, className = '
 };
 
 export default Logo;
+

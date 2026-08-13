@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../lib/AuthContext';
 import { LogOut, Heart, Activity, Calendar, Award, ExternalLink, ShieldCheck, X, PlusCircle } from 'lucide-react';
 import { UserProfile } from '../../types';
@@ -17,7 +17,7 @@ const ParentDashboard: React.FC = () => {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/parents/my/children', {
+      const res = await fetch('/api/parents/my/children', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) setChildren(await res.json());
@@ -36,7 +36,7 @@ const ParentDashboard: React.FC = () => {
     e.preventDefault();
     setError('');
     try {
-      const res = await fetch('http://localhost:8000/parents/my/children', {
+      const res = await fetch('/api/parents/my/children', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ email: childEmail })
@@ -120,7 +120,7 @@ const ParentDashboard: React.FC = () => {
                    </div>
 
                    <div className="text-center md:text-right space-y-1">
-                      <p className="text-5xl font-black text-primary italic leading-none">{(child as any).mastery ?? '—'}</p>
+                      <p className="text-5xl font-black text-primary italic leading-none">{(child as any).mastery ?? 'â€”'}</p>
                       <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest opacity-60">Avg. Mastery</p>
                    </div>
                 </div>
@@ -220,3 +220,4 @@ const ParentDashboard: React.FC = () => {
 };
 
 export default ParentDashboard;
+

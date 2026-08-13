@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogIn, Mail, Lock } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
@@ -21,7 +21,7 @@ const Login: React.FC = () => {
       formData.append('username', email);
       formData.append('password', password);
 
-      const res = await fetch('http://localhost:8000/login', {
+      const res = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString()
@@ -79,7 +79,7 @@ const Login: React.FC = () => {
                   type="password"
                   required
                   className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                  placeholder="••••••••"
+                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -115,4 +115,5 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+
 

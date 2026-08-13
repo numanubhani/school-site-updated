@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../lib/AuthContext';
 import { Users, BookOpen, Settings, X, Plus, User, Mail, Trash2, ChevronRight, FileText, Video, File } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,7 +10,7 @@ interface ClassData { id: number; name: string; teacher_id: number | null; stude
 interface SubjectData { id: number; name: string; description: string; class_id: number; }
 interface MaterialData { id: number; title: string; description: string; material_type: string; url: string; filename: string | null; }
 
-const API = 'http://localhost:8000';
+const API = '/api';
 
 const PrincipalDashboard: React.FC = () => {
   const { token, logout } = useAuth();
@@ -21,7 +21,7 @@ const PrincipalDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'classes'>('overview');
 
-  // Drill-down: class → subject view
+  // Drill-down: class â†’ subject view
   const [selectedClass, setSelectedClass] = useState<ClassData | null>(null);
   const [subjects, setSubjects] = useState<SubjectData[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<SubjectData | null>(null);
@@ -95,7 +95,7 @@ const PrincipalDashboard: React.FC = () => {
     { tab: 'classes', label: 'Classes', icon: BookOpen },
   ];
 
-  // ── handlers ──────────────────────────────────────────────────────────────
+  // â”€â”€ handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const handleCreateTeacher = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -240,7 +240,7 @@ const PrincipalDashboard: React.FC = () => {
   if (loading) return <div className="p-8 text-center animate-pulse text-primary font-bold">Loading Administration Panel...</div>;
 
   const pageTitle = selectedSubject ? selectedSubject.name : selectedClass ? selectedClass.name : school?.name || 'Dashboard';
-  const pageSubtitle = selectedSubject ? `${selectedClass?.name} · Subject Materials` : selectedClass ? 'Class Detail' : 'Principal Command Center';
+  const pageSubtitle = selectedSubject ? `${selectedClass?.name} Â· Subject Materials` : selectedClass ? 'Class Detail' : 'Principal Command Center';
   const handleBack = selectedSubject ? () => setSelectedSubject(null) : selectedClass ? () => { setSelectedClass(null); setSelectedSubject(null); } : undefined;
 
   return (
@@ -279,7 +279,7 @@ const PrincipalDashboard: React.FC = () => {
 
         <div className="p-8 bento-grid pb-24">
 
-          {/* ── Overview Tab ── */}
+          {/* â”€â”€ Overview Tab â”€â”€ */}
           {activeTab === 'overview' && (
             <>
               <div className="card col-span-1">
@@ -345,7 +345,7 @@ const PrincipalDashboard: React.FC = () => {
             </>
           )}
 
-          {/* ── User Management Tab ── */}
+          {/* â”€â”€ User Management Tab â”€â”€ */}
           {activeTab === 'users' && (
             <div className="col-span-4 space-y-8">
               {/* Teachers section */}
@@ -402,7 +402,7 @@ const PrincipalDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* ── Classes Tab ── */}
+          {/* â”€â”€ Classes Tab â”€â”€ */}
           {activeTab === 'classes' && !selectedClass && (
             <div className="col-span-4">
               <div className="flex justify-between items-center mb-6">
@@ -422,7 +422,7 @@ const PrincipalDashboard: React.FC = () => {
                     <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">{teachers.find(t => t.id === cls.teacher_id)?.display_name || 'No teacher assigned'}</p>
                     <div className="mt-4 pt-4 border-t border-gray-50 flex justify-between text-[10px] font-black text-gray-400 uppercase tracking-widest">
                       <span>{cls.student_count} students</span>
-                      <span className="text-primary">View →</span>
+                      <span className="text-primary">View â†’</span>
                     </div>
                   </div>
                 ))}
@@ -435,7 +435,7 @@ const PrincipalDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* ── Class detail: teacher + students + subjects ── */}
+          {/* â”€â”€ Class detail: teacher + students + subjects â”€â”€ */}
           {activeTab === 'classes' && selectedClass && !selectedSubject && (
             <div className="col-span-4 space-y-8">
 
@@ -451,7 +451,7 @@ const PrincipalDashboard: React.FC = () => {
                       onChange={e => setSelectedTeacherId(e.target.value)}
                       className="w-full bg-surface border border-border p-3 rounded-2xl outline-none focus:ring-2 focus:ring-primary font-bold text-gray-800 appearance-none"
                     >
-                      <option value="">— No teacher assigned —</option>
+                      <option value="">â€” No teacher assigned â€”</option>
                       {teachers.map(t => (
                         <option key={t.id} value={t.id}>{t.display_name} ({t.email})</option>
                       ))}
@@ -529,11 +529,11 @@ const PrincipalDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* ── Subject → Materials view ── */}
+          {/* â”€â”€ Subject â†’ Materials view â”€â”€ */}
           {activeTab === 'classes' && selectedSubject && (
             <div className="col-span-4">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-black text-gray-900">Materials — {selectedSubject.name}</h3>
+                <h3 className="text-2xl font-black text-gray-900">Materials â€” {selectedSubject.name}</h3>
                 <button onClick={() => { setMaterialForm({ title: '', description: '', type: 'video_url', url: '' }); setMaterialFile(null); setIsAddMaterialOpen(true); }} className="btn-primary flex items-center gap-2"><Plus size={18} /> Upload Material</button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -550,7 +550,7 @@ const PrincipalDashboard: React.FC = () => {
                     {m.description && <p className="text-xs text-gray-500 mb-3 line-clamp-2">{m.description}</p>}
                     {m.url && (
                       <a href={m.url.startsWith('/') ? `${API}${m.url}` : m.url} target="_blank" rel="noreferrer" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">
-                        Open →
+                        Open â†’
                       </a>
                     )}
                   </div>
@@ -565,7 +565,7 @@ const PrincipalDashboard: React.FC = () => {
           )}
         </div>
 
-        {/* ── Modals ── */}
+        {/* â”€â”€ Modals â”€â”€ */}
 
         {/* Add Teacher */}
         <AnimatePresence>
@@ -720,7 +720,7 @@ const PrincipalDashboard: React.FC = () => {
                     </div>
                   ) : (
                     <div>
-                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">File (PDF, video, doc…)</label>
+                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">File (PDF, video, docâ€¦)</label>
                       <label className="flex flex-col items-center gap-3 p-6 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-all mt-1">
                         <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center"><Plus size={20} /></div>
                         <p className="text-sm font-black text-gray-700">{materialFile ? materialFile.name : 'Click to choose file'}</p>
@@ -732,7 +732,7 @@ const PrincipalDashboard: React.FC = () => {
                   <div className="flex gap-3 pt-2">
                     <button type="button" onClick={() => setIsAddMaterialOpen(false)} className="flex-1 py-3 rounded-2xl border-2 border-gray-100 text-gray-500 font-black text-sm hover:bg-gray-50">Cancel</button>
                     <button type="submit" disabled={uploading} className="flex-1 py-3 bg-primary text-white rounded-2xl font-black text-sm disabled:opacity-60">
-                      {uploading ? 'Uploading…' : 'Upload'}
+                      {uploading ? 'Uploadingâ€¦' : 'Upload'}
                     </button>
                   </div>
                 </form>
@@ -758,7 +758,7 @@ const PrincipalDashboard: React.FC = () => {
                       onChange={e => setEnrollStudentId(e.target.value)}
                       className="w-full bg-surface border border-border p-3 rounded-2xl outline-none focus:ring-2 focus:ring-primary font-bold text-gray-800 appearance-none"
                     >
-                      <option value="">— Choose a student —</option>
+                      <option value="">â€” Choose a student â€”</option>
                       {students
                         .filter(s => !classStudents.some(cs => cs.id === s.id))
                         .map(s => (
@@ -823,3 +823,4 @@ const PrincipalDashboard: React.FC = () => {
 };
 
 export default PrincipalDashboard;
+

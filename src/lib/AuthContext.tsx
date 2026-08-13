@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+﻿import React, { createContext, useContext, useEffect, useState } from 'react';
 import { UserProfile } from '../types';
 
 interface AuthContextType {
@@ -26,7 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchProfile = async (currentToken: string) => {
     try {
-      const res = await fetch('http://localhost:8000/users/me', {
+      const res = await fetch('/api/users/me', {
         headers: { Authorization: `Bearer ${currentToken}` }
       });
       if (res.ok) {
@@ -72,4 +72,5 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 export const useAuth = () => useContext(AuthContext);
+
 
