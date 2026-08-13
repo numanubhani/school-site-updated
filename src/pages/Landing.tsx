@@ -121,7 +121,7 @@ const Landing: React.FC = () => {
               </h1>
               
               <p className="text-xl text-gray-500 font-bold leading-relaxed max-w-xl mx-auto lg:mx-0">
-                From Pre-K to College Prep, EduXcel uses <span className="text-gray-900">Adaptive Intelligence</span> to ensure no explorer is left behind. Master any skill, anytime.
+                From Pre-K to College Prep, SkillsOra uses <span className="text-gray-900">Adaptive Intelligence</span> to ensure no explorer is left behind. Master any skill, anytime.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start pt-4">
@@ -554,7 +554,7 @@ const Landing: React.FC = () => {
                 {[...Array(5)].map((_, i) => <Star key={i} size={24} fill="currentColor" />)}
               </div>
               <p className="text-4xl lg:text-5xl font-black italic italic leading-tight tracking-tighter">
-                "EduXcel isn't just a learning platformâ€”it's an academic engine that empowers my children to master the world on their own terms."
+                “SkillsOra isn't just a learning platform—it's an academic engine that empowers my children to master the world on their own terms.”
               </p>
               <div className="pt-8 border-t border-white/10 w-fit">
                 <p className="text-3xl font-black italic tracking-tighter">Maria Rodriguez</p>
@@ -624,7 +624,7 @@ const Landing: React.FC = () => {
         </div>
         
         <div className="max-w-7xl mx-auto pt-20 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-black text-gray-700 uppercase tracking-[0.4em]">
-           <p>Â© 2024 EDUXCEL INTELLIGENCE SYSTEMS. CODEBASE: V4.8P</p>
+           <p>© 2024 SKILLSORA. ALL RIGHTS RESERVED.</p>
            <div className="flex gap-12">
               <span className="cursor-pointer hover:text-white transition-colors underline decoration-primary decoration-2 underline-offset-8">Privacy Protocol</span>
               <span className="cursor-pointer hover:text-white transition-colors underline decoration-secondary decoration-2 underline-offset-8">User Terms</span>

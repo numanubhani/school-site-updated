@@ -17,7 +17,7 @@ import ParentDashboard from './pages/Dashboards/ParentDashboard';
 const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode, allowedRoles?: string[] }) => {
   const { user, profile, loading } = useAuth();
 
-  if (loading) return <div className="h-screen w-full flex items-center justify-center text-primary font-bold italic">Loading EduXcel...</div>;
+  if (loading) return <div className="h-screen w-full flex items-center justify-center text-primary font-bold italic">Loading SkillsOra...</div>;
   if (!user) return <Navigate to="/login" replace />;
   if (allowedRoles && profile && !allowedRoles.includes(profile.role)) return <Navigate to="/dashboard" replace />;
 

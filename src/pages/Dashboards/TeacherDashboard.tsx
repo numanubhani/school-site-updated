@@ -129,7 +129,7 @@ const TeacherDashboard: React.FC = () => {
   if (loading) return <div className="p-8 text-center animate-pulse text-primary font-bold">Initializing Classroom...</div>;
 
   const pageTitle = selectedSubject ? selectedSubject.name : selectedClass ? selectedClass.name : profile?.displayName || 'Teacher Dashboard';
-  const pageSubtitle = selectedSubject ? `${selectedClass?.name} Â· Materials` : selectedClass ? 'Class Subjects' : 'Teacher Panel';
+  const pageSubtitle = selectedSubject ? `${selectedClass?.name} · Materials` : selectedClass ? 'Class Subjects' : 'Teacher Panel';
   const handleBack = selectedSubject ? () => setSelectedSubject(null) : selectedClass ? () => setSelectedClass(null) : undefined;
 
   return (
@@ -174,7 +174,7 @@ const TeacherDashboard: React.FC = () => {
                     </div>
                     <p className="text-xl font-black text-gray-900 group-hover:text-primary transition-colors mb-1">{cls.name}</p>
                     <div className="mt-4 pt-4 border-t border-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                      {cls.student_count} students enrolled Â· View subjects â†’
+                      {cls.student_count} students enrolled · View subjects →
                     </div>
                   </button>
                 ))}
@@ -187,7 +187,7 @@ const TeacherDashboard: React.FC = () => {
             </>
           )}
 
-          {/* Class â†’ Subjects */}
+          {/* Class → Subjects */}
           {activeTab === 'classes' && selectedClass && !selectedSubject && (
             <div className="col-span-4">
               <div className="flex justify-between items-center mb-6">
@@ -233,11 +233,11 @@ const TeacherDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* Subject â†’ Materials */}
+          {/* Subject → Materials */}
           {activeTab === 'classes' && selectedSubject && (
             <div className="col-span-4">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-black text-gray-900">Materials â€” {selectedSubject.name}</h3>
+                <h3 className="text-2xl font-black text-gray-900">Materials — {selectedSubject.name}</h3>
                 <button onClick={() => { setMaterialForm({ title: '', description: '', type: 'video_url', url: '' }); setMaterialFile(null); setIsAddMaterialOpen(true); }} className="btn-primary flex items-center gap-2"><Upload size={18} /> Upload</button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -253,7 +253,7 @@ const TeacherDashboard: React.FC = () => {
                     </div>
                     {m.description && <p className="text-xs text-gray-500 mb-3 line-clamp-2">{m.description}</p>}
                     {m.url && (
-                      <a href={m.url.startsWith('/') ? `${API}${m.url}` : m.url} target="_blank" rel="noreferrer" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Open â†’</a>
+                      <a href={m.url.startsWith('/') ? `${API}${m.url}` : m.url} target="_blank" rel="noreferrer" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Open →</a>
                     )}
                   </div>
                 ))}
@@ -351,7 +351,7 @@ const TeacherDashboard: React.FC = () => {
                     </div>
                   ) : (
                     <div>
-                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">File (PDF, video, docâ€¦)</label>
+                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">File (PDF, video, doc…)</label>
                       <label className="flex flex-col items-center gap-3 p-6 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:border-primary hover:bg-primary/5 transition-all mt-1">
                         <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center"><Upload size={18} /></div>
                         <p className="text-sm font-black text-gray-700">{materialFile ? materialFile.name : 'Click to choose file'}</p>
@@ -363,7 +363,7 @@ const TeacherDashboard: React.FC = () => {
                   <div className="flex gap-3 pt-2">
                     <button type="button" onClick={() => setIsAddMaterialOpen(false)} className="flex-1 py-3 rounded-2xl border-2 border-gray-100 text-gray-500 font-black text-sm hover:bg-gray-50">Cancel</button>
                     <button type="submit" disabled={uploading} className="flex-1 py-3 bg-primary text-white rounded-2xl font-black text-sm disabled:opacity-60">
-                      {uploading ? 'Uploadingâ€¦' : 'Upload'}
+                      {uploading ? 'Uploading…' : 'Upload'}
                     </button>
                   </div>
                 </form>

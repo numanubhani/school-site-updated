@@ -61,8 +61,8 @@ const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true, className = '
       </motion.div>
       {showText && (
         <div className={`${textSizes} font-black tracking-tighter flex items-center`}>
-          <span className="text-[#0056b3]">EDU</span>
-          <span className="text-[#F07D00] italic">Xcel</span>
+          <span className="text-[#0056b3]">Skills</span>
+          <span className="text-[#F07D00] italic">Ora</span>
         </div>
       )}
     </div>

@@ -46,7 +46,7 @@ const Register: React.FC = () => {
         endpoint = '/api/register/parent';
         payload = { email, display_name: name, password, role };
       } else {
-        // teacher or student â€” requires invite code
+        // teacher or student — requires invite code
         endpoint = `/api/register/${role}`;
         payload = { email, display_name: name, password, invite_code: inviteCode };
       }
@@ -196,7 +196,7 @@ const Register: React.FC = () => {
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 size-5" />
-                  <input type="password" required minLength={6} className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" value={password} onChange={e => setPassword(e.target.value)} />
+                  <input type="password" required minLength={6} className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} />
                 </div>
               </div>
             </div>

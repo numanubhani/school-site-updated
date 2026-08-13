@@ -120,7 +120,7 @@ const ParentDashboard: React.FC = () => {
                    </div>
 
                    <div className="text-center md:text-right space-y-1">
-                      <p className="text-5xl font-black text-primary italic leading-none">{(child as any).mastery ?? 'â€”'}</p>
+                      <p className="text-5xl font-black text-primary italic leading-none">{(child as any).mastery ?? '—'}</p>
                       <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest opacity-60">Avg. Mastery</p>
                    </div>
                 </div>
