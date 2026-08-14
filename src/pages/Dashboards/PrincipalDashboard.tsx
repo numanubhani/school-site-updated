@@ -106,7 +106,7 @@ const PrincipalDashboard: React.FC = () => {
       setIsAddTeacherOpen(false);
       setNewEntity(e => ({ ...e, name: '', email: '' }));
       fetchData();
-    } else { const err = await res.json(); alert(err.detail || 'Failed'); }
+    } else { let msg = 'Failed'; try { const err = await res.json(); msg = err.detail || msg; } catch {} alert(msg); }
   };
 
   const handleCreateStudent = async (e: React.FormEvent) => {
@@ -118,7 +118,7 @@ const PrincipalDashboard: React.FC = () => {
       setIsAddStudentOpen(false);
       setNewEntity(e => ({ ...e, name: '', email: '' }));
       fetchData();
-    } else { const err = await res.json(); alert(err.detail || 'Failed'); }
+    } else { let msg = 'Failed'; try { const err = await res.json(); msg = err.detail || msg; } catch {} alert(msg); }
   };
 
   const handleCreateClass = async (e: React.FormEvent) => {

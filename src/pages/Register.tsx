@@ -58,8 +58,9 @@ const Register: React.FC = () => {
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.detail || 'Registration failed');
+        let msg = 'Registration failed. The server may be unavailable.';
+        try { const data = await res.json(); msg = data.detail || msg; } catch {}
+        throw new Error(msg);
       }
 
       const formData = new URLSearchParams();
