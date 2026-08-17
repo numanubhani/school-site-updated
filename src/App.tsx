@@ -9,6 +9,8 @@ import { AuthProvider, useAuth } from './lib/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Landing from './pages/Landing';
+import CourseLibrary from './pages/CourseLibrary';
+import CourseDetail from './pages/CourseDetail';
 import PrincipalDashboard from './pages/Dashboards/PrincipalDashboard';
 import TeacherDashboard from './pages/Dashboards/TeacherDashboard';
 import StudentDashboard from './pages/Dashboards/StudentDashboard';
@@ -47,6 +49,8 @@ export default function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/courses" element={<CourseLibrary />} />
+            <Route path="/courses/:id" element={<CourseDetail />} />
             <Route path="/dashboard" element={<ProtectedRoute><DashboardHome /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

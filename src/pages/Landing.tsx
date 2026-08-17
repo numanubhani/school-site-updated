@@ -22,39 +22,6 @@ const Landing: React.FC = () => {
     { title: 'SEL', icon: <Heart className="size-10" />, color: 'from-[#FEDA00] to-[#FFE033]', count: '5 Core Domains', description: 'Social Emotional Learning based on CASEL.' },
   ];
 
-  const selDomains = [
-    { 
-      title: 'Self-Awareness', 
-      icon: <BrainCircuit className="size-8" />, 
-      color: 'bg-[#632C85]', 
-      description: "Recognizing one's emotions and values as well as one's strengths and challenges." 
-    },
-    { 
-      title: 'Self-Management', 
-      icon: <Target className="size-8" />, 
-      color: 'bg-[#FEDA00]', 
-      description: "Managing emotions and behaviors to achieve one's goals." 
-    },
-    { 
-      title: 'Social Awareness', 
-      icon: <Users className="size-8" />, 
-      color: 'bg-[#F07D00]', 
-      description: "Showing understanding and empathy for others." 
-    },
-    { 
-      title: 'Relationship Skills', 
-      icon: <Handshake className="size-8" />, 
-      color: 'bg-[#99C300]', 
-      description: "Forming positive relationships and working effectively in teams." 
-    },
-    { 
-      title: 'Decision-Making', 
-      icon: <Zap className="size-8" />, 
-      color: 'bg-[#4B2165]', 
-      description: "Making ethical, constructive choices about personal and social behavior." 
-    },
-  ];
-
   const grades = ['Pre-K', 'K', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th'];
 
   return (
@@ -204,59 +171,24 @@ const Landing: React.FC = () => {
               <h2 className="text-4xl lg:text-6xl font-black text-gray-900 tracking-tighter italic">Featured <span className="text-primary italic">SEL Lessons</span></h2>
               <p className="text-lg text-gray-400 font-bold max-w-xl">Interactive modules designed to build character and emotional resilience.</p>
             </div>
-            <button className="bg-primary text-white px-10 py-5 rounded-[25px] font-black shadow-xl shadow-primary/20 hover:scale-105 transition-transform flex items-center gap-3">
+            <button onClick={() => navigate('/courses')} className="bg-primary text-white px-10 py-5 rounded-[25px] font-black shadow-xl shadow-primary/20 hover:scale-105 transition-transform flex items-center gap-3">
               Browse All Lessons <ArrowRight size={20} />
             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {[
-              { 
-                title: "Identifying Emotions", 
-                domain: "Self-Awareness", 
-                image: "https://picsum.photos/seed/emotion1/600/400", 
-                duration: "15 min", 
-                icon: <Smile className="text-[#632C85]" /> 
-              },
-              { 
-                title: "Stress Management 101", 
-                domain: "Self-Management", 
-                image: "https://picsum.photos/seed/stress/600/400", 
-                duration: "20 min", 
-                icon: <Zap className="text-[#FEDA00]" /> 
-              },
-              { 
-                title: "The Empathy Project", 
-                domain: "Social Awareness", 
-                image: "https://picsum.photos/seed/empathy/600/400", 
-                duration: "25 min", 
-                icon: <Users className="text-[#F07D00]" /> 
-              },
-              { 
-                title: "Healthy Boundaries", 
-                domain: "Relationship Skills", 
-                image: "https://picsum.photos/seed/boundary/600/400", 
-                duration: "18 min", 
-                icon: <Handshake className="text-[#99C300]" /> 
-              },
-              { 
-                title: "Ethical Leadership", 
-                domain: "Decision-Making", 
-                image: "https://picsum.photos/seed/lead/600/400", 
-                duration: "30 min", 
-                icon: <Target className="text-[#4B2165]" /> 
-              },
-              { 
-                title: "Active Listening", 
-                domain: "Relationship Skills", 
-                image: "https://picsum.photos/seed/listen/600/400", 
-                duration: "12 min", 
-                icon: <BookOpen className="text-[#99C300]" /> 
-              }
+              { id: 1, title: "Identifying Emotions", domain: "Self-Awareness", image: "https://picsum.photos/seed/emotion1/600/400", duration: "15 min", icon: <Smile className="text-[#632C85]" /> },
+              { id: 2, title: "Stress Management 101", domain: "Self-Management", image: "https://picsum.photos/seed/stress/600/400", duration: "20 min", icon: <Zap className="text-[#FEDA00]" /> },
+              { id: 3, title: "The Empathy Project", domain: "Social Awareness", image: "https://picsum.photos/seed/empathy/600/400", duration: "25 min", icon: <Users className="text-[#F07D00]" /> },
+              { id: 4, title: "Healthy Boundaries", domain: "Relationship Skills", image: "https://picsum.photos/seed/boundary/600/400", duration: "18 min", icon: <Handshake className="text-[#99C300]" /> },
+              { id: 5, title: "Ethical Leadership", domain: "Decision-Making", image: "https://picsum.photos/seed/lead/600/400", duration: "30 min", icon: <Target className="text-[#4B2165]" /> },
+              { id: 6, title: "Active Listening", domain: "Relationship Skills", image: "https://picsum.photos/seed/listen/600/400", duration: "12 min", icon: <BookOpen className="text-[#99C300]" /> }
             ].map((lesson, i) => (
-              <motion.div 
+              <motion.div
                 key={i}
                 whileHover={{ y: -10 }}
+                onClick={() => navigate(`/courses/${lesson.id}`)}
                 className="bg-white rounded-[40px] overflow-hidden shadow-lg border border-gray-100 group cursor-pointer"
               >
                 <div className="relative h-64 overflow-hidden">
@@ -351,54 +283,256 @@ const Landing: React.FC = () => {
         </div>
       </section>
 
-      {/* SEL CASEL Framework Section */}
-      <section className="bg-surface py-32 px-8 overflow-hidden">
+      {/* CASEL Framework Section */}
+      <section className="py-32 px-8 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center space-y-6 mb-24">
-            <h2 className="text-5xl lg:text-7xl font-black text-gray-900 tracking-tighter">Social & Emotional <span className="text-primary italic animate-pulse">Learning</span></h2>
-            <p className="text-xl text-gray-500 font-bold max-w-3xl mx-auto">
-              Our core mission: Implementing the CASEL framework to nurture healthy development and academic success.
+
+          {/* Header */}
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center gap-3 bg-[#632C85]/10 px-6 py-3 rounded-full mb-6">
+              <div className="size-2 rounded-full bg-[#632C85] animate-pulse"></div>
+              <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#632C85]">Powered by CASEL</span>
+            </div>
+            <h2 className="text-5xl lg:text-7xl font-black text-gray-900 tracking-tighter mb-6">
+              The <span className="text-[#632C85] italic">CASEL</span> Framework
+            </h2>
+            <p className="text-xl text-gray-500 font-bold max-w-3xl mx-auto leading-relaxed">
+              Created by the <span className="text-gray-800">Collaborative for Academic, Social, and Emotional Learning</span>, CASEL is the leading guide for SEL — targeting five core competencies and connecting them across four essential circles of daily life.
             </p>
           </div>
 
-          <div className="relative flex flex-col items-center justify-center min-h-[600px]">
-            {/* The Wheel Center */}
-            <motion.div 
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              className="z-10 bg-white size-64 rounded-full shadow-[0_0_100px_rgba(75,33,101,0.2)] flex flex-col items-center justify-center text-center p-8 border-8 border-primary/10"
-            >
-              <Heart className="size-12 text-primary mb-2" />
-              <p className="text-xl font-black text-gray-900 leading-tight">CASEL<br/>Framework</p>
-            </motion.div>
+          {/* The 5 Competencies + Center Wheel */}
+          <div className="grid lg:grid-cols-3 gap-8 items-start mb-24">
 
-            {/* Orbiting Domains */}
-            {selDomains.map((domain, i) => {
-              const angle = (i * 360) / selDomains.length;
-              return (
-                <motion.div
-                  key={domain.title}
-                  initial={{ opacity: 0, x: 0, y: 0 }}
-                  whileInView={{ 
-                    opacity: 1, 
-                    x: Math.cos((angle * Math.PI) / 180) * 280,
-                    y: Math.sin((angle * Math.PI) / 180) * 280
-                  }}
-                  transition={{ delay: i * 0.1, duration: 0.8 }}
-                  className="absolute flex flex-col items-center group"
-                >
-                  <div className={`size-24 rounded-[30px] ${domain.color} text-white flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform cursor-pointer relative z-20`}>
-                    {domain.icon}
-                    <div className="absolute -bottom-12 whitespace-nowrap bg-white text-gray-900 px-4 py-2 rounded-xl text-xs font-black shadow-xl opacity-0 group-hover:opacity-100 transition-opacity border border-gray-100 uppercase tracking-widest">
-                      {domain.title}
-                    </div>
+            {/* Left column: 2 competencies */}
+            <div className="space-y-6">
+              {[
+                {
+                  title: 'Self-Awareness',
+                  color: '#632C85',
+                  bg: 'bg-[#632C85]',
+                  light: 'bg-[#632C85]/8',
+                  icon: <BrainCircuit className="size-7" />,
+                  desc: "Accurately recognizing one's emotions, thoughts, values, strengths, and limitations.",
+                  skills: ['Identifying emotions accurately', 'Recognizing personal strengths', 'Developing self-confidence', 'Cultivating a growth mindset'],
+                },
+                {
+                  title: 'Self-Management',
+                  color: '#C8A200',
+                  bg: 'bg-[#C8A200]',
+                  light: 'bg-[#FEDA00]/10',
+                  icon: <Target className="size-7" />,
+                  desc: "Successfully regulating one's emotions, thoughts, and behaviors in different situations.",
+                  skills: ['Managing impulses & emotions', 'Setting & achieving goals', 'Demonstrating self-discipline', 'Showing resilience & optimism'],
+                },
+              ].map((comp, i) => (
+                <motion.div key={comp.title} initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.15 }}
+                  className={`${comp.light} rounded-[30px] p-7 border border-white shadow-sm hover:shadow-lg transition-all group`}>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className={`size-12 rounded-2xl ${comp.bg} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>{comp.icon}</div>
+                    <h3 className="text-lg font-black text-gray-900">{comp.title}</h3>
                   </div>
-                  <div className="max-w-[200px] text-center mt-16 opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
-                     <p className="text-xs font-bold text-gray-500 leading-relaxed">{domain.description}</p>
-                  </div>
+                  <p className="text-xs text-gray-500 font-bold leading-relaxed mb-4">{comp.desc}</p>
+                  <ul className="space-y-2">
+                    {comp.skills.map(s => (
+                      <li key={s} className="flex items-center gap-2 text-[11px] font-bold text-gray-600">
+                        <div className="size-1.5 rounded-full shrink-0" style={{ background: comp.color }}></div>{s}
+                      </li>
+                    ))}
+                  </ul>
                 </motion.div>
-              )
-            })}
+              ))}
+            </div>
+
+            {/* Center: CASEL Wheel */}
+            <div className="flex flex-col items-center justify-center gap-6">
+              <motion.div initial={{ scale: 0.8, opacity: 0 }} whileInView={{ scale: 1, opacity: 1 }} transition={{ duration: 0.7 }}
+                className="relative flex items-center justify-center">
+                {/* Outer rings */}
+                <div className="absolute size-[320px] rounded-full border-2 border-dashed border-gray-200 animate-spin" style={{ animationDuration: '30s' }}></div>
+                <div className="absolute size-[260px] rounded-full border-2 border-dashed border-gray-100 animate-spin" style={{ animationDuration: '20s', animationDirection: 'reverse' }}></div>
+                {/* Center circle */}
+                <div className="size-52 rounded-full bg-gradient-to-br from-[#632C85] to-[#4B2165] flex flex-col items-center justify-center text-white text-center p-6 shadow-[0_0_80px_rgba(99,44,133,0.3)] z-10">
+                  <Heart className="size-10 mb-2 text-white/80" />
+                  <p className="text-2xl font-black leading-tight tracking-tight">CASEL</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 mt-1">Framework</p>
+                  <div className="mt-3 flex gap-1">
+                    {['#632C85','#C8A200','#F07D00','#99C300','#4B2165'].map(c => (
+                      <div key={c} className="size-2.5 rounded-full" style={{ background: c }}></div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+              <div className="text-center max-w-[220px]">
+                <p className="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-1">5 Core Competencies</p>
+                <p className="text-xs text-gray-400 font-bold leading-relaxed">Applied across every classroom, school, family, and community</p>
+              </div>
+            </div>
+
+            {/* Right column: 3 competencies */}
+            <div className="space-y-6">
+              {[
+                {
+                  title: 'Social Awareness',
+                  color: '#F07D00',
+                  bg: 'bg-[#F07D00]',
+                  light: 'bg-[#F07D00]/8',
+                  icon: <Users className="size-7" />,
+                  desc: "Taking the perspective of others and showing empathy across diverse backgrounds.",
+                  skills: ['Perspective-taking', 'Empathizing with others', 'Recognizing social norms', 'Appreciating diversity & inclusion'],
+                },
+                {
+                  title: 'Relationship Skills',
+                  color: '#6E8E00',
+                  bg: 'bg-[#99C300]',
+                  light: 'bg-[#99C300]/8',
+                  icon: <Handshake className="size-7" />,
+                  desc: "Establishing and maintaining healthy, rewarding relationships with diverse individuals.",
+                  skills: ['Communicating effectively', 'Building positive relationships', 'Demonstrating teamwork', 'Resolving conflicts constructively'],
+                },
+                {
+                  title: 'Responsible Decision-Making',
+                  color: '#4B2165',
+                  bg: 'bg-[#4B2165]',
+                  light: 'bg-[#4B2165]/8',
+                  icon: <Zap className="size-7" />,
+                  desc: "Making ethical, constructive choices about personal and social behavior.",
+                  skills: ['Analyzing situations carefully', 'Identifying problems & solutions', 'Evaluating consequences', 'Reflecting on choices ethically'],
+                },
+              ].map((comp, i) => (
+                <motion.div key={comp.title} initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.15 }}
+                  className={`${comp.light} rounded-[30px] p-7 border border-white shadow-sm hover:shadow-lg transition-all group`}>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className={`size-12 rounded-2xl ${comp.bg} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>{comp.icon}</div>
+                    <h3 className="text-lg font-black text-gray-900">{comp.title}</h3>
+                  </div>
+                  <p className="text-xs text-gray-500 font-bold leading-relaxed mb-4">{comp.desc}</p>
+                  <ul className="space-y-2">
+                    {comp.skills.map(s => (
+                      <li key={s} className="flex items-center gap-2 text-[11px] font-bold text-gray-600">
+                        <div className="size-1.5 rounded-full shrink-0" style={{ background: comp.color }}></div>{s}
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* The 4 Circles of Daily Life */}
+          <div className="mt-6">
+            <div className="text-center mb-14">
+              <h3 className="text-3xl lg:text-5xl font-black text-gray-900 tracking-tighter mb-4">
+                4 Circles of <span className="text-[#632C85] italic">Daily Life</span>
+              </h3>
+              <p className="text-lg text-gray-400 font-bold max-w-2xl mx-auto">
+                CASEL connects SEL competencies across every environment where students live, learn, and grow.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  number: '01',
+                  title: 'Classrooms',
+                  icon: <BookOpen className="size-8" />,
+                  color: 'from-[#632C85] to-[#4B2165]',
+                  light: 'bg-[#632C85]/5',
+                  border: 'border-[#632C85]/20',
+                  items: [
+                    'Evidence-based SEL instruction',
+                    'Integration across all subjects',
+                    'Student-centered learning',
+                    'Culturally responsive teaching',
+                  ],
+                  desc: 'Teachers deliver intentional SEL instruction and embed social-emotional skill building into everyday academics.',
+                },
+                {
+                  number: '02',
+                  title: 'Schools',
+                  icon: <Award className="size-8" />,
+                  color: 'from-[#F07D00] to-[#C86000]',
+                  light: 'bg-[#F07D00]/5',
+                  border: 'border-[#F07D00]/20',
+                  items: [
+                    'School-wide SEL policies',
+                    'Safe & supportive climate',
+                    'Staff professional development',
+                    'Consistent SEL practices',
+                  ],
+                  desc: 'School-wide culture, leadership, and policies that foster belonging, safety, and adult modeling of SEL.',
+                },
+                {
+                  number: '03',
+                  title: 'Families',
+                  icon: <Heart className="size-8" />,
+                  color: 'from-[#99C300] to-[#6E8E00]',
+                  light: 'bg-[#99C300]/5',
+                  border: 'border-[#99C300]/20',
+                  items: [
+                    'Family engagement programs',
+                    'Home-school connection',
+                    'Parent SEL workshops',
+                    'Shared language & values',
+                  ],
+                  desc: 'Families are the most important influence on children. CASEL builds bridges between what students learn at school and at home.',
+                },
+                {
+                  number: '04',
+                  title: 'Communities',
+                  icon: <Globe className="size-8" />,
+                  color: 'from-[#4B2165] to-[#2D1040]',
+                  light: 'bg-[#4B2165]/5',
+                  border: 'border-[#4B2165]/20',
+                  items: [
+                    'Community partnerships',
+                    'Out-of-school SEL programs',
+                    'Civic & service learning',
+                    'Workforce readiness',
+                  ],
+                  desc: 'Community organizations, health services, and youth programs reinforce SEL values and create real-world opportunities.',
+                },
+              ].map((circle, i) => (
+                <motion.div key={circle.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className={`${circle.light} border ${circle.border} rounded-[35px] p-8 group hover:-translate-y-2 transition-all hover:shadow-xl`}>
+                  <div className="flex items-start justify-between mb-6">
+                    <div className={`size-14 rounded-2xl bg-gradient-to-br ${circle.color} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                      {circle.icon}
+                    </div>
+                    <span className="text-5xl font-black text-gray-100 leading-none">{circle.number}</span>
+                  </div>
+                  <h4 className="text-xl font-black text-gray-900 mb-3">{circle.title}</h4>
+                  <p className="text-xs text-gray-500 font-bold leading-relaxed mb-5">{circle.desc}</p>
+                  <ul className="space-y-2">
+                    {circle.items.map(item => (
+                      <li key={item} className="flex items-center gap-2 text-[11px] font-bold text-gray-600">
+                        <CheckCircle2 size={12} className="text-gray-400 shrink-0" />{item}
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Bottom CASEL callout */}
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+              className="mt-12 bg-gradient-to-r from-[#632C85] to-[#4B2165] rounded-[30px] p-10 flex flex-col md:flex-row items-center justify-between gap-8 text-white shadow-2xl shadow-[#632C85]/20">
+              <div className="space-y-2 text-center md:text-left">
+                <p className="text-[11px] font-black uppercase tracking-[0.3em] text-white/60">The Gold Standard in SEL</p>
+                <h4 className="text-2xl font-black tracking-tight">Built on the CASEL framework — trusted by education ministries worldwide.</h4>
+              </div>
+              <div className="flex gap-8 text-center shrink-0">
+                {[['5', 'Competencies'], ['4', 'Life Circles'], ['50+', 'Countries'], ['400K+', 'Schools']].map(([n, l]) => (
+                  <div key={l}>
+                    <p className="text-3xl font-black text-white">{n}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-white/60">{l}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
